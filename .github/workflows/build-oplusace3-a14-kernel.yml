@@ -31,6 +31,8 @@ jobs:
         git clone https://github.com/PoXiao777/android_kernel_oneplus_sm8550 common --depth=1
         wget https://github.com/PoXiao777/Kernel-Builder_Action/raw/main/patches/last_defconfig
         mv last_defconfig common/arch/arm64/configs/gki_defconfig
+        git clone https://gitlab.com/simonpunk/susfs4ksu.git -b gki-android13-5.15
+        git clone https://github.com/TheWildJames/kernel_patches.git
         
     - name: Download Clang-aosp
       run: |
@@ -44,6 +46,74 @@ jobs:
         cd $GITHUB_WORKSPACE/kernel_workspace/kernel_platform/common
         rm -rf KernelSU drivers/kernelsu
         curl -LSs "https://raw.githubusercontent.com/rifsxd/KernelSU-Next/next/kernel/setup.sh" | bash -s next
+
+    - name: Apply SUSFS Patches
+      run: |
+          cd $GITHUB_WORKSPACE/kernel_workspace/kernel_platform/common
+          
+          echo "Applying SUSFS patches..."
+          
+          # Copy SUSFS patches
+          cp ../susfs4ksu/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch ./KernelSU-Next/
+          cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-android13-5.15.patch ./
+          cp ../susfs4ksu/kernel_patches/fs/* ./fs/
+          cp ../susfs4ksu/kernel_patches/include/linux/* ./include/linux/
+
+          cd ./KernelSU-Next
+          
+          # Apply SUSFS patch for KernelSU
+          patch -p1 --forward < 10_enable_susfs_for_ksu.patch || true
+          
+          # Change to common directory and apply SUSFS patch
+          cd ../
+          patch -p1 < 50_add_susfs_in_gki-android13-5.15.patch || true
+          
+    - name: Apply Next-SUSFS Patches
+      run: |
+          cd $GITHUB_WORKSPACE/kernel_workspace/kernel_platform/common/
+          
+          echo "Applying next SUSFS patches..."
+          cp ../kernel_patches/apk_sign.c_fix.patch ./
+          patch -p1 -F 3 < apk_sign.c_fix.patch
+          cp ../kernel_patches/core_hook.c_fix.patch ./
+          patch -p1 --fuzz=3 < core_hook.c_fix.patch
+          cp ../kernel_patches/selinux.c_fix.patch ./
+          patch -p1 -F 3 < selinux.c_fix.patch
+
+    - name: Apply Hide Stuff Patches
+      run: |
+          cd $GITHUB_WORKSPACE/kernel_workspace/kernel_platform/common
+          # Apply additional patch
+          cp ../kernel_patches/69_hide_stuff.patch ./
+          patch -p1 -F 3 < 69_hide_stuff.patch || true
+
+    - name: Add SUSFS Configuration Settings
+      run: |
+          cd $GITHUB_WORKSPACE/kernel_workspace/kernel_platform/
+          
+          echo "Adding configuration settings to gki_defconfig..."
+          
+          # Add SUSFS configuration settings
+          echo "CONFIG_KSU=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_KSU_SUSFS=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_KSU_SUSFS_SUS_PATH=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_KSU_SUSFS_SUS_MOUNT=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_KSU_SUSFS_AUTO_ADD_SUS_KSU_DEFAULT_MOUNT=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_KSU_SUSFS_AUTO_ADD_SUS_BIND_MOUNT=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_KSU_SUSFS_SUS_KSTAT=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_KSU_SUSFS_SUS_OVERLAYFS=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_KSU_SUSFS_TRY_UMOUNT=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_KSU_SUSFS_AUTO_ADD_TRY_UMOUNT_FOR_BIND_MOUNT=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_KSU_SUSFS_SPOOF_UNAME=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_KSU_SUSFS_ENABLE_LOG=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_KSU_SUSFS_OPEN_REDIRECT=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_KSU_SUSFS_SUS_SU=y" >> ./common/arch/arm64/configs/gki_defconfig
+          
+          # Add additional tmpfs config setting
+          echo "CONFIG_TMPFS_XATTR=y" >> ./common/arch/arm64/configs/gki_defconfig
 
     - name: Build kernel
       run: |
