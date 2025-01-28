@@ -29,8 +29,6 @@ jobs:
         cd $GITHUB_WORKSPACE/kernel_workspace
         cd kernel_platform
         git clone https://github.com/PoXiao777/android_kernel_oneplus_sm8550 common --depth=1
-        wget https://github.com/PoXiao777/Kernel-Builder_Action/raw/main/patches/last_defconfig
-        mv last_defconfig common/arch/arm64/configs/gki_defconfig
         git clone https://gitlab.com/simonpunk/susfs4ksu.git -b gki-android13-5.15
         git clone https://github.com/TheWildJames/kernel_patches.git
         
