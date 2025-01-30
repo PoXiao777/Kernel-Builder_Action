@@ -43,7 +43,7 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE/kernel_workspace/kernel_platform/common
         rm -rf KernelSU drivers/kernelsu
-        curl -LSs "https://raw.githubusercontent.com/rifsxd/KernelSU-Next/next/kernel/setup.sh" | bash -
+        curl -LSs "https://raw.githubusercontent.com/rifsxd/KernelSU-Next/next/kernel/setup.sh" | bash -s next
     - name: Apply SUSFS Patches
       run: |
           cd $GITHUB_WORKSPACE/kernel_workspace/kernel_platform/common
