@@ -90,10 +90,10 @@ jobs:
         LLVM=1 LLVM_IAS=1 && TOOL_ARGS+=("LLVM=${LLVM}" "LLVM_IAS=${LLVM_IAS}")
         cd ${KERNEL_DIR}
         THREAD=24
-        make -j"$THREAD" "${TOOL_ARGS[@]}" O=${OUT_DIR}  ${DEFCONFIG}
+        make -j"$THREAD" "${TOOL_ARGS[@]}" O=${OUT_DIR} ${DEFCONFIG} LTO=thin
         scripts/config --file ${OUT_DIR}/.config -e LTO_CLANG -d LTO_NONE -e LTO_CLANG_THIN -d LTO_CLANG_FULL -e THINLTO
         THREAD=$(($(nproc --all) - 1))
-        make -j"$THREAD" O=${OUT_DIR} NOKLEAF_LOCALVERSION=1 "${TOOL_ARGS[@]}"
+        make -j"$THREAD" O=${OUT_DIR} NOKLEAF_LOCALVERSION=1 "${TOOL_ARGS[@]}" LTO=thin
         # make -j"$THREAD" O=${OUT_DIR} "${TOOL_ARGS[@]}" INSTALL_MOD_PATH="." INSTALL_MOD_STRIP=1 modules_install
         
         # rm -rf $GITHUB_WORKSPACE/kernel_workspace/out/lib/modules/5.15.123-Pro+/build
