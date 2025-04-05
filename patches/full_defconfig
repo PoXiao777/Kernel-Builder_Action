@@ -54,7 +54,7 @@ CONFIG_XEN=y
 CONFIG_COMPAT=y
 CONFIG_RANDOMIZE_BASE=y
 CONFIG_ARM64_APPENDED_DTB=y
-CONFIG_CMDLINE="console=tty0 root=PARTLABEL=win rootwait keep_bootcon quiet splash allow_mismatched_32bit_el0 ignore_loglevel"
+CONFIG_CMDLINE="console=tty0 root=PARTLABEL=win rootwait keep_bootcon allow_mismatched_32bit_el0"
 CONFIG_CMDLINE_FORCE=y
 CONFIG_PM_AUTOSLEEP=y
 CONFIG_PM_WAKELOCKS=y
