@@ -43,7 +43,7 @@ jobs:
         cd $GITHUB_WORKSPACE/kernel_workspace
         KERNEL_DIR=./kernel_platform/common
         OUT_DIR=../../out
-        wget https://raw.githubusercontent.com/PoXiao777/Kernel-Builder_Action/refs/heads/Original/patches/no-others_defconfig -o kernel_platform/common/arch/arm64/configs/test_defconfig
+        wget https://raw.githubusercontent.com/PoXiao777/Kernel-Builder_Action/refs/heads/Original/patches/exist-others_defconfig -o kernel_platform/common/arch/arm64/configs/test_defconfig
         DEFCONFIG="test_defconfig"
         LTO=thin
         export PATH=$GITHUB_WORKSPACE/kernel_workspace/clang-aosp/bin:$PATH
